@@ -1,12 +1,13 @@
-function Todo(props) {
-  return (
 
-            <div className="todo-item">
-                <input type="checkbox" className="todo-checkbox" checked/>
-                <span className="todo-text">{props.name}</span>
-                <button className="delete-btn">Удалить</button>
-            </div>
-             
-        )
-}
-export default Todo
+
+const Todo = ({title, completed, onDelete, onToggle}) => {
+  return (
+    <div className={`todo-item ${completed ? "completed" : ""}`}>
+          <input type="checkbox" className="todo-checkbox" checked={completed} onChange={onToggle}/>
+          <span className={`todo-text ${completed ? "completed" : ""}`} > {title}</span>
+          <button className="delete-btn" onClick={onDelete}>Удалить</button>
+    </div>
+  );
+};
+
+export default Todo;

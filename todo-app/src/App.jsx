@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import './App.css'
-import Todo from './components/Todo/Todo'
+import { useEffect, useState } from "react";
+import Todo from "./components/Todo/Todo.jsx";
+import "./App.css";
 
 function App() {
-  const [todoName, setTodoName] = useState("")
-  const [todos, setTodos] = useState([])
-  const handleSubmit = (e) => {
+  const [todoName, setTodoName] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [todos, setTodos] = useState(() => {
+    const saved = localStorage.getItem("todos");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
+
+  const addTodo = (e) => {
     e.preventDefault();
-    const text = todoName.trim();
+    if (!todoName.trim()) return;
 
-    if (text) {
-      
-      const todo = {
-        name: todoName,
-        id: crypto.randomUUID(),
-        done: false,
-      }
-      setTodos((oldValue) => [todo, ...oldValue])
-    }
+    const newTodo = {
+      id: crypto.randomUUID(),
+      title: todoName,
+      completed: false,
+    };
 
-    // const handleCompleted = (value) => {
-    //   setTodoName(todos => todos.map(todo => todo.id == value ?
-    //     { ...todo, completed: !todo.completed } : todo)
-    //   );
-    // }
+    setTodos((prev) => [newTodo, ...prev]);
+    setTodoName("");
+  };
 
-    // const handleDelete = (id) => {
-    //   setTodoName(todos => todos.filter(todo => todo.id !== id));
+  const removeTodo = (id) => {
+    setTodos((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const toggleTodo = (id) => {
+    setTodos((prev) =>
+      prev.map((t) =>
+        t.id === id ? { ...t, completed: !t.completed } : t
+      )
+    );
+  };
+  
+    //    setTodoName(todos => todos.map(todo => todo.id == value ?
+    //      { ...todo, completed: !todo.completed } : todo)
+    //    );
+    //  }
+
+    
+    //   setTodoName(todos => todos.filter((todo) => todo.id !== id));
     // };
 
-    // const handleUpdate = (id, newText) => {
+ 
     //   setTodoName(prev =>
     //     todos.map(todo =>
     //       todo.id === id ? { ...todo, text: newText } : todo
@@ -37,8 +58,17 @@ function App() {
     //   );
     // };
 
-  };
+              const filteredTodos = todos.filter((a) => {
+                  if (filter === "active") return !a.completed;
+                  if (filter === "completed") return a.completed;
+                  return true;
+                  });
 
+              const filters = [
+                  { key: "all", label: "Все" },
+                  { key: "active", label: "Активные" },
+                  { key: "completed", label: "Завершенные" },
+                  ];
 
   return (
     <div className="container">
@@ -47,40 +77,43 @@ function App() {
         <p>Управляйте своими задачами</p>
       </div>
 
-      <div className="add-todo">
-        <div className="input-container">
-          <form onSubmit={handleSubmit} className="add-todo-form">
-            <input
-              type="text"
-              className="todo-input"
-              placeholder="Добавить новую задачу..."
-              id="todoInput"
-              value={todoName}
-              onChange={(e) => setTodoName(e.target.value)} />
-            <button type="submit" className="add-btn" id="addBtn">Добавить</button>
-          </form>
-        </div>
-      </div>
+      <form className="add-todo" onSubmit={addTodo}>
+        <input
+          type="text"
+          className="todo-input"
+          placeholder="Введите задачу..."
+          value={todoName}
+          onChange={(e) => setTodoName(e.target.value)}/>
+        <button className="add-btn">Добавить</button>
+      </form>
 
       <div className="filters">
-        <button className="filter-btn active" data-filter="all">Все</button>
-        <button className="filter-btn" data-filter="active">Активные</button>
-        <button className="filter-btn" data-filter="completed">Завершенные</button>
+        {filters.map((e) => (
+          <button
+            key={e.key}
+            onClick={() => setFilter(e.key)}
+            className={`filter-btn ${filter === e.key ? "active" : ""}`} > {e.label}
+          </button>
+        ))}
       </div>
 
       <div className="todo-list">
-        {todos.map(todo => (
-          <Todo {...todo}/>
+        {filteredTodos.map((item) => (
+          <Todo key={item.id} title={item.title} completed={item.completed} onDelete={() => removeTodo(item.id)} onToggle={() => toggleTodo(item.id)}/>
         ))}
+      </div>
       
 
-      </div>
-
       <div className="stats">
-        Всего: 4 | Активных: 3 | Завершено: 1
+        Всего: {todos.length} | Активные:{" "}
+        {todos.filter((a) => !a.completed).length} | Завершенные:{" "}
+        {todos.filter((a) => a.completed).length}
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
+
+
+
