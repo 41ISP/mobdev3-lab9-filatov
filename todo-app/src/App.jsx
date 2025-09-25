@@ -77,7 +77,8 @@ function App() {
         <p>Управляйте своими задачами</p>
       </div>
 
-      <form className="add-todo" onSubmit={addTodo}>
+      <div className="add-todo">
+      <form onSubmit={addTodo}>
         <input
           type="text"
           className="todo-input"
@@ -86,6 +87,7 @@ function App() {
           onChange={(e) => setTodoName(e.target.value)}/>
         <button className="add-btn">Добавить</button>
       </form>
+      </div>
 
       <div className="filters">
         {filters.map((e) => (
@@ -105,9 +107,7 @@ function App() {
       
 
       <div className="stats">
-        Всего: {todos.length} | Активные:{" "}
-        {todos.filter((a) => !a.completed).length} | Завершенные:{" "}
-        {todos.filter((a) => a.completed).length}
+        Всего: {todos.length} | Активные:{" "} {todos.filter((a) => !a.completed).length} | Завершенные:{" "} {todos.filter((a) => a.completed).length}
       </div>
     </div>
   );
